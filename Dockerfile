@@ -4,7 +4,8 @@ FROM composer:2.6 AS composer-build
 WORKDIR /app
 
 # Copier les fichiers de dépendances
-COPY composer.json composer.lock ./
+COPY composer.json ./
+
 
 # Installer les dépendances PHP sans scripts post-install
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
