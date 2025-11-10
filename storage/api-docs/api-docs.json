@@ -7,11 +7,12 @@
     },
     "servers": [
         {
-            "url": "https://ompaye.onrender.com",
-            "description": "Serveur API principal"
+            "url": "http://localhost:8000",
+            "description": "Serveur de développement"
         },
         {
-            "url": "https://ompaye.onrender.com"
+            "url": "https://ompaye.onrender.com",
+            "description": "Serveur API principal"
         }
     ],
     "paths": {
