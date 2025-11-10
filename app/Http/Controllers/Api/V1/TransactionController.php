@@ -7,8 +7,50 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @OA\Schema(
+ *     schema="Transaction",
+ *     type="object",
+ *     title="Transaction",
+ *     description="Modèle représentant une transaction",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="user_id", type="integer", example=1),
+ *     @OA\Property(property="compte_id", type="integer", example=1),
+ *     @OA\Property(property="merchant_id", type="integer", nullable=true, example=1),
+ *     @OA\Property(property="type", type="string", enum={"depot", "retrait", "paiement", "transfert"}, example="depot"),
+ *     @OA\Property(property="montant", type="number", format="float", example=100.50),
+ *     @OA\Property(property="statut", type="string", enum={"en_attente", "valide", "annule"}, example="valide"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ */
 class TransactionController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/transactions",
+     *     summary="Lister les transactions de l'utilisateur",
+     *     description="Récupérer toutes les transactions de l'utilisateur connecté",
+     *     operationId="getTransactions",
+     *     tags={"Transactions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste des transactions récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Transaction"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
         return response()->json([
@@ -37,6 +79,50 @@ class TransactionController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/transactions/depot",
+     *     summary="Effectuer un dépôt",
+     *     description="Créditer le compte de l'utilisateur avec un montant spécifié",
+     *     operationId="depot",
+     *     tags={"Transactions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"montant"},
+     *             @OA\Property(property="montant", type="number", format="float", minimum=0.01, example=100.50)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Dépôt effectué avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Dépôt effectué avec succès."),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="transaction", ref="#/components/schemas/Transaction"),
+     *                 @OA\Property(property="solde_actuel", type="number", format="float", example=1100.50)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The montant field is required."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
+     */
     public function depot(Request $request)
     {
         $request->validate([
@@ -69,6 +155,60 @@ class TransactionController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/transactions/retrait",
+     *     summary="Effectuer un retrait",
+     *     description="Débiter le compte de l'utilisateur avec un montant spécifié",
+     *     operationId="retrait",
+     *     tags={"Transactions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"montant"},
+     *             @OA\Property(property="montant", type="number", format="float", minimum=0.01, example=50.00)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Retrait effectué avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Retrait effectué avec succès."),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user_id", type="integer", example=1),
+     *                 @OA\Property(property="type", type="string", example="retrait"),
+     *                 @OA\Property(property="montant", type="number", format="float", example=50.00),
+     *                 @OA\Property(property="solde_actuel", type="number", format="float", example=950.50)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Solde insuffisant",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Solde insuffisant.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The montant field is required."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
+     */
     public function retrait(Request $request)
     {
         $request->validate([
@@ -110,6 +250,70 @@ class TransactionController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/transactions/paiement",
+     *     summary="Effectuer un paiement marchand",
+     *     description="Payer un marchand en utilisant le code marchand",
+     *     operationId="paiementMarchand",
+     *     tags={"Transactions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"code_marchand","montant"},
+     *             @OA\Property(property="code_marchand", type="string", example="OMN001"),
+     *             @OA\Property(property="montant", type="number", format="float", minimum=0.01, example=25.00)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Paiement effectué avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Paiement effectué avec succès."),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="user_id", type="integer", example=1),
+     *                 @OA\Property(property="merchant_id", type="integer", example=1),
+     *                 @OA\Property(property="type", type="string", example="paiement"),
+     *                 @OA\Property(property="montant", type="number", format="float", example=25.00),
+     *                 @OA\Property(property="solde_actuel", type="number", format="float", example=975.50)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Solde insuffisant",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Solde insuffisant.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Marchand introuvable",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Marchand introuvable.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The code_marchand field is required."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
+     */
     public function paiementMarchand(Request $request)
     {
         $request->validate([
@@ -164,6 +368,70 @@ class TransactionController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/transactions/transfert",
+     *     summary="Effectuer un transfert",
+     *     description="Transférer de l'argent vers un autre utilisateur via son numéro de téléphone",
+     *     operationId="transfert",
+     *     tags={"Transactions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"numero","montant"},
+     *             @OA\Property(property="numero", type="string", example="520-518-6511"),
+     *             @OA\Property(property="montant", type="number", format="float", minimum=0.01, example=100.00)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Transfert effectué avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Transfert effectué avec succès."),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="emetteur_id", type="integer", example=1),
+     *                 @OA\Property(property="destinataire_id", type="integer", example=2),
+     *                 @OA\Property(property="type", type="string", example="transfert"),
+     *                 @OA\Property(property="montant", type="number", format="float", example=100.00),
+     *                 @OA\Property(property="solde_actuel", type="number", format="float", example=900.50)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Solde insuffisant",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Solde insuffisant.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Destinataire introuvable",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Destinataire introuvable.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erreur de validation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The numero field is required."),
+     *             @OA\Property(property="errors", type="object")
+     *         )
+     *     )
+     * )
+     */
     public function transfert(Request $request)
     {
         $request->validate([

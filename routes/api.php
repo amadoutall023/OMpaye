@@ -7,9 +7,9 @@ use App\Http\Controllers\Api\V1\TransactionController;
 Route::prefix('v1')->group(function () {
 
     // Auth endpoints
-    Route::post('auth/login', [AuthController::class, 'login']);
-    Route::post('auth/logout', [AuthController::class, 'logout'])->middleware('auth.api');
-    Route::post('auth/refresh', [AuthController::class, 'refresh'])->middleware('auth.api');
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth.api');
+    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth.api');
 
     // Compte endpoints
     Route::middleware('auth.api')->group(function () {
@@ -25,4 +25,5 @@ Route::prefix('v1')->group(function () {
         Route::post('transactions/transfert', [TransactionController::class, 'transfert']);
     });
 });
+
 
