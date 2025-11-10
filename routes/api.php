@@ -18,6 +18,7 @@ Route::prefix('v1')->group(function () {
 
     // Transactions
     Route::middleware('auth.api')->group(function () {
+        Route::get('transactions', [TransactionController::class, 'index']);
         Route::post('transactions/depot', [TransactionController::class, 'depot']);
         Route::post('transactions/retrait', [TransactionController::class, 'retrait']);
         Route::post('transactions/paiement', [TransactionController::class, 'paiementMarchand']);
