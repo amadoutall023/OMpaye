@@ -11,7 +11,7 @@ class Transaction extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['user_id', 'type', 'montant', 'statut', 'description'];
+    protected $fillable = ['user_id', 'compte_id', 'merchant_id', 'type', 'montant', 'statut', 'description', 'reference'];
 
     protected static function boot()
     {
@@ -20,6 +20,9 @@ class Transaction extends Model
         static::creating(function ($transaction) {
             if (!$transaction->getKey()) {
                 $transaction->{$transaction->getKeyName()} = Str::uuid()->toString();
+            }
+            if (!$transaction->reference) {
+                $transaction->reference = 'TXN-' . strtoupper(Str::random(10));
             }
         });
     }

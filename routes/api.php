@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth.api')->group(function () {
         Route::post('transactions/depot', [TransactionController::class, 'depot']);
         Route::post('transactions/retrait', [TransactionController::class, 'retrait']);
+        Route::post('transactions/paiement', [TransactionController::class, 'paiementMarchand']);
         Route::post('transactions/transfert', [TransactionController::class, 'transfert']);
     });
 });

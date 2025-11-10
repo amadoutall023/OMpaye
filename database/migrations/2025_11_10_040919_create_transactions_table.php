@@ -14,7 +14,7 @@ return new class extends Migration
        Schema::create('transactions', function (Blueprint $table) {
     $table->uuid('id')->primary();
     $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-    $table->enum('type', ['depot', 'paiement', 'transfert']);
+    $table->enum('type', ['depot', 'retrait', 'paiement', 'transfert']);
     $table->decimal('montant', 12, 2);
     $table->enum('statut', ['en_attente', 'valide', 'annule'])->default('en_attente');
     $table->text('description')->nullable();
