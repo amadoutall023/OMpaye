@@ -32,7 +32,7 @@ class TrustProxies extends Middleware
            
 
             
-            if (env('APP_ENV') === 'production') {
+            if (app()->environment('production')) {
                $request->server->set('HTTPS', 'on');
             }
             return parent::handle($request, $next);
