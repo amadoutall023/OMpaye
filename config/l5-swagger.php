@@ -93,7 +93,7 @@ return [
             /*
              * Edit to set the api's base path
              */
-            'base' => env('L5_SWAGGER_BASE_PATH', null),
+            'base' => env('L5_SWAGGER_BASE_PATH', env('APP_URL')),
 
             /*
              * Absolute path to directories that should be excluded from scanning
@@ -285,10 +285,10 @@ return [
         ],
         'defaults' => [
             'paths' => [
-                'base' => env('L5_SWAGGER_BASE_PATH', 'https://api.ompaye.com'),
+                'base' => env('L5_SWAGGER_BASE_PATH', 'https://ompaye.onrender.com'),
             ],
             'constants' => [
-                'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'https://api.ompaye.com'),
+                'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'https://ompaye.onrender.com'),
             ],
         ],
     ],
