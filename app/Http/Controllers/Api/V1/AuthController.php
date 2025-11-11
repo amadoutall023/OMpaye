@@ -18,7 +18,11 @@ use App\Models\OtpToken;
  *
  * @OA\Server(
  *     url=L5_SWAGGER_CONST_HOST,
- *     description="Serveur API principal"
+ *     description="Serveur de développement local"
+ * )
+ * @OA\Server(
+ *     url="https://ompaye-api.onrender.com",
+ *     description="Serveur de production"
  * )
  *
  * @OA\SecurityScheme(
