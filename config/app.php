@@ -159,6 +159,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Mailjet\LaravelMailjet\MailjetServiceProvider::class,
 
         /*
          * Application Service Providers...

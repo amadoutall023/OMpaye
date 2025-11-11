@@ -8,8 +8,9 @@ Route::prefix('v1')->group(function () {
 
     // Auth endpoints
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth.api');
-    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth.api');
+    Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:sanctum');
 
     // Compte endpoints
     Route::middleware('auth.api')->group(function () {

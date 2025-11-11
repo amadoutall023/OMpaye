@@ -7,12 +7,11 @@
     },
     "servers": [
         {
-            "url": "https://ompaye.onrender.com",
-            "description": "Serveur de déploiement"
+            "url": "http://localhost:8000",
+            "description": "Serveur API principal"
         },
         {
-            "url": "http://localhost:8000",
-            "description": "Serveur de développement"
+            "url": "http://localhost:8000"
         }
     ],
     "paths": {
@@ -21,9 +20,9 @@
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Connexion utilisateur",
-                "description": "Authentifier un utilisateur et retourner un token d'accès",
-                "operationId": "login",
+                "summary": "Demander un code OTP pour la connexion",
+                "description": "Vérifier les identifiants et envoyer un code OTP par email",
+                "operationId": "requestOtp",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -43,6 +42,96 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "admin123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Code OTP envoyé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Code OTP envoyé à votre adresse email."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Identifiants invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Identifiants invalides."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The email field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/verify-otp": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Vérifier le code OTP et se connecter",
+                "description": "Valider le code OTP et retourner un token d'accès",
+                "operationId": "verifyOtp",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "otp_code"
+                                ],
+                                "properties": {
+                                    "otp_code": {
+                                        "type": "string",
+                                        "example": "316969"
                                     }
                                 },
                                 "type": "object"
@@ -83,8 +172,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Identifiants invalides",
+                    "400": {
+                        "description": "Code OTP invalide ou expiré",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -95,7 +184,26 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Identifiants invalides."
+                                            "example": "Code OTP invalide ou expiré."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The otp_code field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -104,59 +212,6 @@
                         }
                     }
                 }
-            }
-        },
-        "/api/v1/logout": {
-            "post": {
-                "tags": [
-                    "Authentification"
-                ],
-                "summary": "Déconnexion utilisateur",
-                "description": "Révoquer tous les tokens d'accès de l'utilisateur",
-                "operationId": "logout",
-                "responses": {
-                    "200": {
-                        "description": "Déconnexion réussie",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Déconnexion réussie."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Token invalide",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
             }
         },
         "/api/v1/refresh": {
