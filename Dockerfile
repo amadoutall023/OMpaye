@@ -36,27 +36,6 @@ RUN mkdir -p storage/framework/{cache,data,sessions,testing,views} \
     && chown -R laravel:laravel /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
-# Créer un fichier .env minimal pour le build
-# RUN echo "APP_NAME=Laravel" > .env && \
-#     echo "APP_ENV=production" >> .env && \
-#     echo "APP_KEY=" >> .env && \
-#     echo "APP_DEBUG=false" >> .env && \
-#     echo "APP_URL=http://localhost" >> .env && \
-#     echo "" >> .env && \
-#     echo "LOG_CHANNEL=stack" >> .env && \
-#     echo "LOG_LEVEL=error" >> .env && \
-#     echo "" >> .env && \
-#     echo "DB_CONNECTION=pgsql" >> .env && \
-#     echo "DB_HOST=ballast.proxy.rlwy.net" >> .env && \
-#     echo "DB_PORT=51500" >> .env && \
-#     echo "DB_DATABASE=railway" >> .env && \
-#     echo "DB_USERNAME=postgres" >> .env && \
-#     echo "DB_PASSWORD=xIwIxRUGYnPJOkorrjXyoGsSLrOPTNEG" >> .env && \
-#     echo "" >> .env && \
-#     echo "CACHE_DRIVER=file" >> .env && \
-#     echo "SESSION_DRIVER=file" >> .env && \
-#     echo "QUEUE_CONNECTION=sync" >> .env
-
 # Changer les permissions du fichier .env pour l'utilisateur laravel
 RUN chown laravel:laravel .env
 
@@ -72,11 +51,8 @@ RUN php artisan passport:keys --force
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Passer à l'utilisateur non-root
-USER laravel
-
-# Exposer le port 8000
-EXPOSE 8000
+# Exposer le port 9000 pour PHP-FPM
+EXPOSE 9000
 
 # Commande par défaut
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["php-fpm"]
