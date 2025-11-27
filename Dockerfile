@@ -7,7 +7,7 @@ RUN apk add --no-cache autoconf g++ make \
     && docker-php-ext-enable mongodb
 
 # Installer l'extension GD nécessaire pour simple-qrcode
-RUN apk add --no-cache libpng-dev libjpeg-dev freetype-dev \
+RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev \
     && docker-php-ext-install gd
 
 WORKDIR /app
@@ -26,7 +26,7 @@ RUN apk add --no-cache postgresql-dev postgresql-client \
     && docker-php-ext-install pdo pdo_pgsql
 
 # Installer l'extension GD nécessaire pour simple-qrcode
-RUN apk add --no-cache libpng-dev libjpeg-dev freetype-dev \
+RUN apk add --no-cache libpng-dev libjpeg-turbo-dev freetype-dev \
     && docker-php-ext-install gd
 
 # Créer un utilisateur non-root
