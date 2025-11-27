@@ -6,6 +6,13 @@ WORKDIR /app
 # Copier les fichiers de dépendances
 COPY composer.json ./
 
+# Installer les dépendances système et l'extension gd (nécessaire pour certains paquets)
+# on installe les paquets de build, configure et compile gd, puis on supprime les dépendances de build
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    freetype-dev libpng-dev libjpeg-turbo-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd \
+    && apk del .build-deps
 
 # Installer les dépendances PHP sans scripts post-install
 RUN composer update --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
@@ -14,8 +21,11 @@ RUN composer update --no-dev --optimize-autoloader --no-interaction --prefer-dis
 FROM php:8.3-fpm-alpine
 
 # Installer les extensions PHP nécessaires
-RUN apk add --no-cache postgresql-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    freetype-dev libpng-dev libjpeg-turbo-dev postgresql-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql \
+    && apk del .build-deps
 
 # Créer un utilisateur non-root
 RUN addgroup -g 1000 laravel && adduser -G laravel -g laravel -s /bin/sh -D laravel
