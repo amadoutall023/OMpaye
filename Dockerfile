@@ -79,4 +79,4 @@ EXPOSE 80
 
 # Entrypoint pour Render : démarre php-fpm et nginx (template nginx.conf -> default.conf)
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint-render.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+CMD [ "-g", "daemon off;"]
