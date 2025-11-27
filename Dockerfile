@@ -6,6 +6,10 @@ RUN apk add --no-cache autoconf g++ make \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb
 
+# Installer l'extension GD nécessaire pour simple-qrcode
+RUN apk add --no-cache libpng-dev libjpeg-dev freetype-dev \
+    && docker-php-ext-install gd
+
 WORKDIR /app
 
 # Copier les fichiers de dépendances
@@ -20,6 +24,10 @@ FROM php:8.3-fpm-alpine
 # Installer les extensions PHP nécessaires et les outils Postgres
 RUN apk add --no-cache postgresql-dev postgresql-client \
     && docker-php-ext-install pdo pdo_pgsql
+
+# Installer l'extension GD nécessaire pour simple-qrcode
+RUN apk add --no-cache libpng-dev libjpeg-dev freetype-dev \
+    && docker-php-ext-install gd
 
 # Créer un utilisateur non-root
 RUN addgroup -g 1000 laravel && adduser -G laravel -g laravel -s /bin/sh -D laravel
