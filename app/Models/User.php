@@ -6,7 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Str;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -30,6 +30,17 @@ class User extends Authenticatable
         'password',
     ];
 
+    /**
+     * The attributes that should be validated.
+     *
+     * @var array<string, string>
+     */
+    protected $rules = [
+        'telephone' => 'required|string|unique:users,telephone',
+        'email' => 'nullable|string|email|unique:users,email',
+        'password' => 'required|string|min:8',
+    ];
+
       protected static function boot()
     {
         parent::boot();
@@ -39,6 +50,9 @@ class User extends Authenticatable
                 $model->{$model->getKeyName()} = Str::uuid()->toString();
             }
         });
+
+        // Désactiver temporairement l'Observer UserObserver
+        // static::observe(\App\Observers\UserObserver::class);
     }
 
     /**

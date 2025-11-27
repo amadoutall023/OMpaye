@@ -15,6 +15,7 @@ class OtpToken extends Model
         'user_id',
         'token',
         'purpose',
+        'data',
         'expires_at',
         'used'
     ];

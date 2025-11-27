@@ -14,7 +14,12 @@ class Compte extends Model
 
     protected $fillable = [
         'user_id',
+        'numero_compte',
         'solde',
+    ];
+
+    protected $casts = [
+        'solde' => 'float',
     ];
 
     public $incrementing = false;
@@ -34,6 +39,34 @@ class Compte extends Model
       public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'compte_id', 'id');
+    }
+
+    public function recalculerSolde()
+    {
+        $this->solde = $this->transactions()->where('statut', 'valide')->get()->reduce(function ($carry, $transaction) {
+            switch ($transaction->type) {
+                case 'depot':
+                    return $carry + $transaction->montant;
+                case 'retrait':
+                case 'paiement':
+                    return $carry - $transaction->montant;
+                case 'transfert':
+                    // Pour les transferts, vérifier si c'est émetteur ou destinataire
+                    // Si le compte est l'émetteur, soustraire; sinon ajouter
+                    // Mais pour simplifier, supposons que les transferts sont sortants pour ce compte
+                    return $carry - $transaction->montant;
+                default:
+                    return $carry;
+            }
+        }, 0);
+
+        $this->save();
+        \Illuminate\Support\Facades\Log::info('Solde recalculé', ['compte_id' => $this->id, 'nouveau_solde' => $this->solde]);
     }
 
 }

@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('otp_tokens', function (Blueprint $table) {
             $table->id();
-            $table->uuid('user_id');
+            $table->uuid('user_id')->nullable(); // nullable pour les tokens d'enregistrement
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('token', 6);
-            $table->string('purpose'); // login, password_reset, etc.
+            $table->string('purpose'); // register, login, password_reset, etc.
+            $table->json('data')->nullable(); // pour stocker des données temporaires (téléphone pour register)
             $table->timestamp('expires_at');
             $table->boolean('used')->default(false);
             $table->timestamps();
 
             $table->index(['user_id', 'purpose']);
+            $table->index(['purpose', 'used', 'expires_at']);
             $table->index('expires_at');
         });
     }

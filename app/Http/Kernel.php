@@ -23,10 +23,10 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     ];
 protected $routeMiddleware = [
-    
-    'auth.api' => \App\Http\Middleware\AuthMiddleware::class,
-    'role' => \App\Http\Middleware\RoleMiddleware::class,
-    'logging' => \App\Http\Middleware\LoggingMiddleware::class,
+
+'auth.api' => \App\Http\Middleware\AuthMiddleware::class,
+'role' => \App\Http\Middleware\RoleMiddleware::class,
+'logging' => \App\Http\Middleware\LoggingMiddleware::class,
 ];
 
     /**
@@ -45,7 +45,8 @@ protected $routeMiddleware = [
         ],
 
         'api' => [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\ForceJsonResponse::class,
+            // \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class, // Commented out to avoid session issues in API
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],

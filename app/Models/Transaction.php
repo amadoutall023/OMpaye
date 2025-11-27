@@ -22,7 +22,7 @@ class Transaction extends Model
                 $transaction->{$transaction->getKeyName()} = Str::uuid()->toString();
             }
             if (!$transaction->reference) {
-                $transaction->reference = 'TXN-' . strtoupper(Str::random(10));
+                $transaction->reference = 'TXN-' . strtoupper(Str::random(8)) . '-' . substr(str_replace('.', '', microtime(true)), -8);
             }
         });
     }

@@ -19,33 +19,265 @@
         }
     ],
     "paths": {
-        "/api/v1/login": {
+        "/api/v1/accounts/{numerocompte}": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Informations du compte",
+                "description": "Récupérer les informations détaillées d'un compte par numéro",
+                "operationId": "getAccount",
+                "parameters": [
+                    {
+                        "name": "numerocompte",
+                        "in": "path",
+                        "description": "Numéro du compte",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "KC-00001234"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Informations du compte récupérées avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Compte non trouvé"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/accounts/{numerocompte}/balance": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Solde du compte",
+                "description": "Récupérer uniquement le solde d'un compte",
+                "operationId": "getAccountBalance",
+                "parameters": [
+                    {
+                        "name": "numerocompte",
+                        "in": "path",
+                        "description": "Numéro du compte",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "KC-00001234"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Solde récupéré avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "numerocompte": {
+                                            "type": "string",
+                                            "example": "KC-00001234"
+                                        },
+                                        "solde": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 12500
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Compte non trouvé"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/accounts/{numerocompte}/transactions": {
+            "get": {
+                "tags": [
+                    "Comptes"
+                ],
+                "summary": "Transactions du compte",
+                "description": "Récupérer la liste paginée des transactions d'un compte",
+                "operationId": "getAccountTransactions",
+                "parameters": [
+                    {
+                        "name": "numerocompte",
+                        "in": "path",
+                        "description": "Numéro du compte",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "KC-00001234"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Nombre d'éléments par page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Numéro de la page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transactions récupérées avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Transaction"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 20
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 45
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 3
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Compte non trouvé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Compte non trouvé"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/register": {
             "post": {
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Demander un code OTP pour la connexion",
-                "description": "Vérifier les identifiants et envoyer un code OTP par email",
-                "operationId": "requestOtp",
+                "summary": "S'inscrire avec numéro de téléphone",
+                "description": "Demander un code OTP par SMS pour créer un nouveau compte",
+                "operationId": "register",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "email",
-                                    "password"
+                                    "telephone"
                                 ],
                                 "properties": {
-                                    "email": {
+                                    "telephone": {
                                         "type": "string",
-                                        "format": "email",
-                                        "example": "admin@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "admin123"
+                                        "example": "+221771234567"
                                     }
                                 },
                                 "type": "object"
@@ -55,18 +287,31 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Code OTP envoyé avec succès",
+                        "description": "Code OTP envoyé",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
                                             "type": "string",
-                                            "example": "success"
+                                            "example": "otp_sent"
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Code OTP envoyé à votre adresse email."
+                                            "example": "OTP envoyé au +221771234567"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "telephone": {
+                                                    "type": "string",
+                                                    "example": "+221771234567"
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "example": 600
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -74,8 +319,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Identifiants invalides",
+                    "400": {
+                        "description": "Numéro de téléphone déjà utilisé",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -86,7 +331,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Identifiants invalides."
+                                            "example": "Ce numéro de téléphone est déjà utilisé."
                                         }
                                     },
                                     "type": "object"
@@ -102,7 +347,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "The email field is required."
+                                            "example": "The telephone field is required."
                                         },
                                         "errors": {
                                             "type": "object"
@@ -116,13 +361,13 @@
                 }
             }
         },
-        "/api/v1/verify-otp": {
+        "/api/v1/auth/verify": {
             "post": {
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Vérifier le code OTP et se connecter",
-                "description": "Valider le code OTP et retourner un token d'accès",
+                "summary": "Vérifier le code OTP et créer le compte",
+                "description": "Valider le code OTP envoyé par SMS et créer le compte utilisateur avec mot de passe",
                 "operationId": "verifyOtp",
                 "requestBody": {
                     "required": true,
@@ -130,12 +375,23 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "otp_code"
+                                    "telephone",
+                                    "otp",
+                                    "password"
                                 ],
                                 "properties": {
-                                    "otp_code": {
+                                    "telephone": {
                                         "type": "string",
-                                        "example": "316969"
+                                        "example": "+221771234567"
+                                    },
+                                    "otp": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "MonMotDePasseSecurise!"
                                     }
                                 },
                                 "type": "object"
@@ -145,27 +401,46 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Connexion réussie",
+                        "description": "Compte créé avec succès",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "status": {
                                             "type": "string",
-                                            "example": "success"
+                                            "example": "created"
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Connexion réussie."
+                                            "example": "Compte créé avec succès."
                                         },
                                         "data": {
                                             "properties": {
-                                                "user": {
-                                                    "$ref": "#/components/schemas/User"
-                                                },
                                                 "access_token": {
                                                     "type": "string",
                                                     "example": "1|abc123..."
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "example": 3600
+                                                },
+                                                "account": {
+                                                    "properties": {
+                                                        "numerocompte": {
+                                                            "type": "string",
+                                                            "example": "KC-00001234"
+                                                        },
+                                                        "telephone": {
+                                                            "type": "string",
+                                                            "example": "+221771234567"
+                                                        },
+                                                        "solde": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 0
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 }
                                             },
                                             "type": "object"
@@ -204,7 +479,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "The otp_code field is required."
+                                            "example": "The otp field is required."
                                         },
                                         "errors": {
                                             "type": "object"
@@ -218,7 +493,213 @@
                 }
             }
         },
-        "/api/v1/refresh": {
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Se connecter avec numéro de téléphone et mot de passe",
+                "description": "Vérifier les identifiants et envoyer un code OTP par SMS pour la connexion",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "telephone",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "telephone": {
+                                        "type": "string",
+                                        "example": "+221771234567"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Code OTP envoyé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Code OTP envoyé à votre numéro de téléphone."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "telephone": {
+                                                    "type": "string",
+                                                    "example": "+221771234567"
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "example": 600
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Identifiants invalides",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Identifiants invalides."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Erreur de validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The telephone field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/verify-login": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Vérifier le code OTP et se connecter",
+                "description": "Valider le code OTP de connexion et retourner un token d'accès",
+                "operationId": "verifyLoginOtp",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "otp_code"
+                                ],
+                                "properties": {
+                                    "otp_code": {
+                                        "type": "string",
+                                        "example": "316969"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Connexion réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Connexion réussie."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                },
+                                                "expires_in": {
+                                                    "type": "integer",
+                                                    "example": 3600
+                                                },
+                                                "account": {
+                                                    "properties": {
+                                                        "numerocompte": {
+                                                            "type": "string",
+                                                            "example": "KC-00001234"
+                                                        },
+                                                        "telephone": {
+                                                            "type": "string",
+                                                            "example": "+221771234567"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Code OTP invalide ou expiré",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Code OTP invalide ou expiré."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/refresh": {
             "post": {
                 "tags": [
                     "Authentification"
@@ -390,10 +871,10 @@
         "/api/v1/transactions/depot": {
             "post": {
                 "tags": [
-                    "Transactions"
+                    "Transactions Distributeur"
                 ],
-                "summary": "Effectuer un dépôt",
-                "description": "Créditer le compte de l'utilisateur avec un montant spécifié",
+                "summary": "Effectuer un dépôt (Distributeur uniquement)",
+                "description": "Créditer le compte d'un client avec un montant spécifié - Réservé aux distributeurs",
                 "operationId": "depot",
                 "requestBody": {
                     "required": true,
@@ -401,9 +882,14 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "numero_compte",
                                     "montant"
                                 ],
                                 "properties": {
+                                    "numero_compte": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
                                     "montant": {
                                         "type": "number",
                                         "format": "float",
@@ -450,6 +936,22 @@
                             }
                         }
                     },
+                    "403": {
+                        "description": "Accès refusé - Réservé aux distributeurs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Accès refusé. Cette fonctionnalité est réservée aux distributeurs."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
                     "401": {
                         "description": "Non authentifié",
                         "content": {
@@ -474,7 +976,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "The montant field is required."
+                                            "example": "The numero_compte field is required."
                                         },
                                         "errors": {
                                             "type": "object"
@@ -496,10 +998,10 @@
         "/api/v1/transactions/retrait": {
             "post": {
                 "tags": [
-                    "Transactions"
+                    "Transactions Distributeur"
                 ],
-                "summary": "Effectuer un retrait",
-                "description": "Débiter le compte de l'utilisateur avec un montant spécifié",
+                "summary": "Effectuer un retrait (Distributeur uniquement)",
+                "description": "Débiter le compte d'un client avec un montant spécifié - Réservé aux distributeurs",
                 "operationId": "retrait",
                 "requestBody": {
                     "required": true,
@@ -507,9 +1009,14 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "numero_compte",
                                     "montant"
                                 ],
                                 "properties": {
+                                    "numero_compte": {
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
                                     "montant": {
                                         "type": "number",
                                         "format": "float",
@@ -586,164 +1093,15 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Non authentifié",
+                    "403": {
+                        "description": "Accès refusé - Réservé aux distributeurs",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Unauthenticated."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Erreur de validation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "The montant field is required."
-                                        },
-                                        "errors": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/transactions/paiement": {
-            "post": {
-                "tags": [
-                    "Transactions"
-                ],
-                "summary": "Effectuer un paiement marchand",
-                "description": "Payer un marchand en utilisant le code marchand",
-                "operationId": "paiementMarchand",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "code_marchand",
-                                    "montant"
-                                ],
-                                "properties": {
-                                    "code_marchand": {
-                                        "type": "string",
-                                        "example": "OMN001"
-                                    },
-                                    "montant": {
-                                        "type": "number",
-                                        "format": "float",
-                                        "minimum": 0.01,
-                                        "example": 25
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Paiement effectué avec succès",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Paiement effectué avec succès."
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "user_id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "merchant_id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "type": {
-                                                    "type": "string",
-                                                    "example": "paiement"
-                                                },
-                                                "montant": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 25
-                                                },
-                                                "solde_actuel": {
-                                                    "type": "number",
-                                                    "format": "float",
-                                                    "example": 975.5
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Solde insuffisant",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Solde insuffisant."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Marchand introuvable",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Marchand introuvable."
+                                            "example": "Accès refusé. Cette fonctionnalité est réservée aux distributeurs."
                                         }
                                     },
                                     "type": "object"
@@ -775,7 +1133,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "The code_marchand field is required."
+                                            "example": "The numero_compte field is required."
                                         },
                                         "errors": {
                                             "type": "object"
@@ -799,8 +1157,8 @@
                 "tags": [
                     "Transactions"
                 ],
-                "summary": "Effectuer un transfert",
-                "description": "Transférer de l'argent vers un autre utilisateur via son numéro de téléphone",
+                "summary": "Effectuer un transfert universel",
+                "description": "Transférer de l'argent vers un utilisateur (via numéro de téléphone) ou un marchand (via code marchand)",
                 "operationId": "transfert",
                 "requestBody": {
                     "required": true,
@@ -813,8 +1171,9 @@
                                 ],
                                 "properties": {
                                     "numero": {
+                                        "description": "Numéro de téléphone (9 chiffres commençant par 7) ou code marchand",
                                         "type": "string",
-                                        "example": "520-518-6511"
+                                        "example": "770000000"
                                     },
                                     "montant": {
                                         "type": "number",
@@ -851,7 +1210,13 @@
                                                 },
                                                 "destinataire_id": {
                                                     "type": "integer",
-                                                    "example": 2
+                                                    "example": 2,
+                                                    "nullable": true
+                                                },
+                                                "merchant_id": {
+                                                    "type": "integer",
+                                                    "example": 1,
+                                                    "nullable": true
                                                 },
                                                 "type": {
                                                     "type": "string",
@@ -897,7 +1262,7 @@
                         }
                     },
                     "404": {
-                        "description": "Destinataire introuvable",
+                        "description": "Destinataire ou marchand introuvable",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -962,6 +1327,45 @@
     },
     "components": {
         "schemas": {
+            "AccountResponse": {
+                "title": "Réponse compte",
+                "description": "Informations détaillées d'un compte",
+                "properties": {
+                    "numerocompte": {
+                        "type": "string",
+                        "example": "KC-00001234"
+                    },
+                    "telephone": {
+                        "type": "string",
+                        "example": "+22177xxxxxxx"
+                    },
+                    "solde": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 12500
+                    },
+                    "qrCode": {
+                        "description": "QR Code en base64",
+                        "type": "string",
+                        "example": "data:image/png;base64,..."
+                    },
+                    "transactions_summary": {
+                        "properties": {
+                            "count": {
+                                "type": "integer",
+                                "example": 12
+                            },
+                            "last": {
+                                "type": "string",
+                                "format": "date-time",
+                                "example": "2025-11-10T14:22:00Z"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "Utilisateur",
                 "description": "Modèle représentant un utilisateur",
@@ -1103,16 +1507,20 @@
     },
     "tags": [
         {
-            "name": "Authentification",
-            "description": "Authentification"
-        },
-        {
             "name": "Comptes",
             "description": "Comptes"
         },
         {
+            "name": "Authentification",
+            "description": "Authentification"
+        },
+        {
             "name": "Transactions",
             "description": "Transactions"
+        },
+        {
+            "name": "Transactions Distributeur",
+            "description": "Transactions Distributeur"
         }
     ],
     "security": [

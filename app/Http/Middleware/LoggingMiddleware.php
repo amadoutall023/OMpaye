@@ -13,7 +13,7 @@ class LoggingMiddleware
         $response = $next($request);
 
         Log::info('Opération API', [
-            'user_id' => $request->user()?->id,
+            'user_id' => auth()->user()?->id,
             'url' => $request->fullUrl(),
             'method' => $request->method(),
             'body' => $request->all(),

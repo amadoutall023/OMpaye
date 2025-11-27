@@ -13,11 +13,13 @@ class Authenticate
      */
     public function handle(Request $request, Closure $next, $guard = null)
     {
-        if (!Auth::guard($guard)->check()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Unauthenticated.'
-            ], 401);
+        try {
+            if (!Auth::guard($guard)->check()) {
+                return response('Utilisateur non authentifié.', 401);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Auth error', ['error' => $e->getMessage()]);
+            return response('Token invalide.', 401);
         }
 
         return $next($request);

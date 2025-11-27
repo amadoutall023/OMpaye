@@ -8,21 +8,18 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Models\User;
 
 class OtpCodeMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public User $user;
     public string $otpCode;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, string $otpCode)
+    public function __construct(string $otpCode)
     {
-        $this->user = $user;
         $this->otpCode = $otpCode;
     }
 
@@ -44,7 +41,6 @@ class OtpCodeMail extends Mailable implements ShouldQueue
         return new Content(
             view: 'emails.otp-code',
             with: [
-                'user' => $this->user,
                 'otpCode' => $this->otpCode,
             ],
         );

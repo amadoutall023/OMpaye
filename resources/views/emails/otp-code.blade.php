@@ -67,7 +67,7 @@
             <h2>Vérification de votre compte</h2>
         </div>
 
-        <p>Bonjour <strong>{{ $user->name }}</strong>,</p>
+        <p>Bonjour,</p>
 
         <p>Pour sécuriser votre connexion à OMPAYE, nous avons besoin de vérifier votre identité. Voici votre code de vérification :</p>
 
