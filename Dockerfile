@@ -1,27 +1,34 @@
 # Étape 1: Build des dépendances PHP
-FROM composer:2.6 AS composer-build
+## Build stage: utiliser une image PHP Alpine pour pouvoir apk et docker-php-ext-*
+FROM php:8.3-cli-alpine AS composer-build
 
 WORKDIR /app
 
-# Copier les fichiers de dépendances
-COPY composer.json ./
-
-# Installer les dépendances système et l'extension gd (nécessaire pour certains paquets)
-# on installe les paquets de build, configure et compile gd, puis on supprime les dépendances de build
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    freetype-dev libpng-dev libjpeg-turbo-dev \
+# Installer utilitaires et dépendances nécessaires pour compiler gd et installer les dépendances
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS curl git \
+    && apk add --no-cache freetype-dev libpng-dev libjpeg-turbo-dev freetype libpng libjpeg-turbo \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd \
-    && apk del .build-deps
+    && docker-php-ext-install -j$(nproc) gd
 
-# Installer les dépendances PHP sans scripts post-install
-RUN composer update --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts
+# Installer Composer (version compatible) et activer l'auto-discovery
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Copier les fichiers de dépendances d'abord pour tirer parti du cache Docker
+COPY composer.json composer.lock ./
+
+# Installer les dépendances en mode production (composer.lock permet l'installation reproductible)
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-scripts --no-progress
+
+# Supprimer les dépendances de build conservant les libs runtime
+RUN apk del .build-deps || true
 
 # Étape 2: Image finale pour l'application
 FROM php:8.3-fpm-alpine
 
-# Installer les extensions PHP nécessaires
-RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+# Installer runtime libs, nginx et utilitaires pour le container final
+RUN apk add --no-cache freetype libpng libjpeg-turbo postgresql-libs \
+    nginx bash shadow curl gettext \
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     freetype-dev libpng-dev libjpeg-turbo-dev postgresql-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql \
@@ -35,6 +42,12 @@ WORKDIR /var/www/html
 
 # Copier les dépendances installées depuis l'étape de build
 COPY --from=composer-build /app/vendor ./vendor
+COPY --from=composer-build /usr/local/bin/composer /usr/local/bin/composer
+
+# Copier la conf nginx adaptée pour Render (template) et le script d'entrée
+COPY nginx.render.conf.template /etc/nginx/conf.d/default.conf.template
+COPY docker-entrypoint-render.sh /usr/local/bin/docker-entrypoint-render.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint-render.sh
 
 # Copier le reste du code de l'application
 COPY . .
@@ -61,8 +74,9 @@ RUN php artisan passport:keys --force
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Exposer le port 9000 pour PHP-FPM
-EXPOSE 9000
+# Exposer le port HTTP pour Render (nginx écoute 80)
+EXPOSE 80
 
-# Commande par défaut
-CMD ["php-fpm"]
+# Entrypoint pour Render : démarre php-fpm et nginx (template nginx.conf -> default.conf)
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint-render.sh"]
+CMD ["nginx", "-g", "daemon off;"]
